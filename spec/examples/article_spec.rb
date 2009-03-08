@@ -10,6 +10,6 @@ describe Article, "validation" do
   it "should provide error message 'Please fill Title and Permalink fields'" do
     @article.should_not be_valid
     @article.should have(1).errors_on(:human_error)
-    @article.errors.full_messages.should == ["Please fill Title and Permalink fields"]
+    HumanValidation.render_error_messages(@article).should == ["Please fill Title and Permalink fields"]
   end
 end
