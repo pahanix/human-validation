@@ -1,0 +1,39 @@
+# Usage examples
+
+# == Please Fill
+
+class Article < ActiveRecord::Base
+  please_fill :title, :permalink, [:body, "your message"]
+end
+
+"Please fill Title, Permalink and your message fields"
+"Please fill Title field"
+"Please fill Permalink field"
+"Please fill your message"
+
+# == Please Choose
+
+class Address < ActiveRecord::Base
+  please_choose [:country, "your country"], :state
+  # please_choose :country, :as => "your country"
+end
+
+"Please choose your country and state"
+"Please choose your country"
+"Please choose state"
+
+class Imaging < ActiveRecord::Base
+  please_choose "imagings:", [:front_imaging, "front"], [:back_imaging, "back"]
+end
+
+"Please choose imagings: front and back"
+
+# == Please Make Sure
+
+class Address < ActiveRecord::Base
+  please_make_sure :zip, :as => "Zip code", :is => [:numeric, {:length => 5}, [:format, /0\d{4}/, "starts with zero"]]
+end
+
+"Please make sure that Zip code is numeric, 5 characters long and starts with zero"
+"Please make sure that Zip code 5 characters long and starts with zero"
+"Please make sure that Zip code starts with zero"
