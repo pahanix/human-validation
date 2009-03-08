@@ -17,20 +17,3 @@ describe Address, "validation" do
     @article.errors.full_messages.should == ["Please choose your country and fill City, Name, Zip code and Home Adress fields also please make sure that Zip code is uniq, numeric, more 5 characters long and Phone also is a number. Otherwise we can't bill you properly. Thank you!"]
   end
 end
-
-class Article < ActiveRecord::Base
-  please_fill :title, :permalink
-end
-
-describe Article, "validation" do
-  before do
-    @article = Article.new
-  end
-
-  it "should provide error message 'Please fill Title and Permalink fields'" do
-    @article.should_not be_valid
-    @article.should have(1).errors_on(:human_error)
-    @article.errors.full_messages.should == ["Please fill Title and Permalink fields"]
-  end
-end
-
