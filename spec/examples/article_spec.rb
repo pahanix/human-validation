@@ -9,7 +9,7 @@ describe Article, "validation" do
 
   it "should provide error message 'Please fill Title and Permalink fields'" do
     @article.should_not be_valid
-    @article.should have(1).errors_on(:human_error)
-    HumanValidation.render_error_messages(@article).should == ["Please fill Title and Permalink fields"]
+    @article.should have(1).errors_on(:base)
+    HumanValidation.render_error_messages(@article).should include("Please fill Title and Permalink fields")
   end
 end
