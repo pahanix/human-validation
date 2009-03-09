@@ -3,7 +3,7 @@
 # == Please Fill
 
 class Article < ActiveRecord::Base
-  please_fill :title, :permalink, [:body, "your message"]
+  please_fill :title, :permalink, :body.as("your message")
 end
 
 "Please fill Title, Permalink and your message fields"
@@ -14,8 +14,7 @@ end
 # == Please Choose
 
 class Address < ActiveRecord::Base
-  please_choose [:country, "your country"], :state
-  # please_choose :country, :as => "your country"
+  please_choose :country.as("your country"), :state
 end
 
 "Please choose your country and state"
@@ -23,7 +22,7 @@ end
 "Please choose state"
 
 class Imaging < ActiveRecord::Base
-  please_choose "imagings:", [:front_imaging, "front"], [:back_imaging, "back"]
+  please_choose "imagings:", :front_imaging.as("front"), :back_imaging.as("back")
 end
 
 "Please choose imagings: front and back"
@@ -31,9 +30,153 @@ end
 # == Please Make Sure
 
 class Address < ActiveRecord::Base
-  please_make_sure :zip, :as => "Zip code", :is => [:numeric, {:length => 5}, [:format, /0\d{4}/, "starts with zero"]]
+  please_make_sure :zip, :as => "Zip code", :is => [
+    { :numeric => { :greater_than => 0 } }, 
+    { :length => 5 }, 
+    [:format, /0\d{4}/, "starts with zero"]
+  ]
+
+  please_make_sure :zip.as("Zip code"), :is => [ 
+    :numeric.greater_than(0), 
+    :length.equals(5), 
+    :format.with(/0\d{4}/, "starts with zero")
+  ]
+  
+  please_make_sure :zip.as("Zip code").is(
+    :numeric.greater_than(0, ""), 
+    :length.equals(5, "5 characters long"), 
+    :format.with(/0\d{4}/, "starts with zero")
+  )
+  
 end
 
 "Please make sure that Zip code is numeric, 5 characters long and starts with zero"
 "Please make sure that Zip code 5 characters long and starts with zero"
 "Please make sure that Zip code starts with zero"
+
+class Adress < ActiveRecord::Base
+
+  please_fill :first_name, :last_name, :country.as("Your country"), :state.if(:country_has_state)
+
+  def country_has_state
+    ["USA", "Canada"].include? country
+  end
+end
+# ==
+
+class Person < ActiveRecord::Base
+  validates_acceptance_of :terms_of_service
+  validates_acceptance_of :eula, :message => "must be abided"
+  
+  please_accept :terms_of_service
+end
+
+class Person < ActiveRecord::Base
+  validates_presence_of :first_name
+  validates_presence_of :country
+  
+  please_fill :first_name
+  please_choose :county
+end
+
+class Person < ActiveRecord::Base
+  validates_uniqueness_of :login
+  validates_uniqueness_of :user_name, :scope => :account_id
+  validates_uniqueness_of :teacher_id, :scope => [:semester_id, :class_id]
+
+  make_sure :login.is(:uniq)
+  make_sure :login.is_uniq
+  make_sure :login, :is => [:uniq, {:case_sensitive => true }, "uniq (case sensitive)"]
+  make_sure :login, :is => [:uniq.case_sensitive("case sensitive uniq")]  
+  make_sure :user_name, :is => :uniq.scope(:account_id)
+  make_sure :teacher_id, :is => :uniq.scope([:semester_id, :class_id], "uniq touple(teacher, semester, class)")
+end
+
+  
+class Person < ActiveRecord::Base
+  validates_length_of :first_name, :maximum=>30
+  validates_length_of :last_name, :maximum=>30, :message=>"less than {{count}} if you don't mind"
+  validates_length_of :fax, :in => 7..32, :allow_nil => true
+  validates_length_of :phone, :in => 7..32, :allow_blank => true
+  validates_length_of :user_name, :within => 6..20, :too_long => "pick a shorter name", :too_short => "pick a longer name"
+  validates_length_of :fav_bra_size, :minimum => 1, :too_short => "please enter at least {{count}} character"
+  validates_length_of :smurf_leader, :is => 4, :message => "papa is spelled with {{count}} characters... don't play me."
+  validates_length_of :essay, :minimum => 100, :too_short => "Your essay must be at least {{count}} words."), :tokenizer => lambda {|str| str.scan(/\w+/) }
+  
+  make_sure :first_name.has( :length.max(30) )
+  make_sure :last_name.lenght.max(30, "less than {{count}} if you don't mind") 
+  make_sure :fax.has( length.in(7..32).or_nil )
+  make_sure :phone.length.in(7..32).or_blank
+  
+  make_sure :user_name.is(
+              # :length.within(6..20, :too_short => "pick a shorter name", :too_long => "pick a longer name").
+              :length.within(6..20, "pick a shorter name", "pick a longer name").
+            )
+            
+  make_sure :smurf_leader.length.is(4, "papa is spelled with {{count}} characters... don't play me.")
+  # min => too_short(message)
+  # max => too_long(message)
+  make_sure :essay.length.min(100, "Your essay must be at least {{count}} words.").
+                    tokenizer( lambda {|str| str.scan(/\w+/) } )
+  
+  
+end
+
+class Person < ActiveRecord::Base
+  EMAIL_REGEXP = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
+  
+  validates_presence_of :email    
+  validates_uniqueness_of :email, :case_sensitive => true
+  validates_length_of :email, :in => 7..32
+  validates_format_of :email, :with => EMAIL_REGEXP
+  
+  please_fill :email; 
+  and_make_sure :email, :is => :uniq, [:length, 5..128] }, [:format, EMAIL_REGEXP]]
+  
+  please_fill :email; and_make_sure :email.is(
+    :uniq.case_sensitive.scope(:account_id), :length.in(5..128), :format.with(EMAIL_REGEXP)
+  )
+
+  please_fill_and_make_sure :email.is(
+    :uniq.case_sensitive.scope(:account_id), :length.in(5..128), :format.with(EMAIL_REGEXP)
+  )
+  validates_presence_of :login    
+  validates_uniqueness_of :login, :case_sensitive => true
+  validates_presence_of :email    
+  validates_uniqueness_of :email, :scope => :account_id
+  validates_length_of :email, :in => 7..32
+  validates_format_of :email, :with => EMAIL_REGEXP
+
+  please_fill_and_make_sure :login.as("Username").is(:uniq.case_sensitive), 
+                            :email.is(
+                              :uniq.scope(:account_id), 
+                              :length.in(5..128), 
+                              :format.with(EMAIL_REGEXP)
+                            )
+  make_sure :login.as("Username").is(
+              :present, # :filled
+              :uniq.case_sensitive
+            ), 
+            :email.is(
+              :present, # :filled
+              :uniq.scope(:account_id), 
+              :length.in(5..128), 
+              :format.with(EMAIL_REGEXP)
+            )
+                            
+end
+
+
+class Person < ActiveRecord::Base
+  validates_inclusion_of :gender, :in => %w( m f ), :message => "woah! what are you then!??!!"
+  validates_inclusion_of :age, :in => 0..99
+  validates_inclusion_of :format, :in => %w( jpg gif png ), :message => "extension {{value}} is not included in the list"
+
+  please_make_sure :age.in(1..100)  
+  please_choose :format.from(%w( jpg gif png ), "extention {{value}} is not included in the list")
+end
+
+class Person < ActiveRecord::Base
+  validates_numericality_of :value, :on => :create
+  please_make_sure :value.is(:numeric.less_than_or_equal_to(100))  
+end
