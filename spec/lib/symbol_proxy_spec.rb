@@ -84,6 +84,10 @@ describe Symbol do
     it "should raise NoMethodError for :any_other_sym.in" do
       lambda { :unknown.in(1..100) }.should raise_error(NoMethodError, /\:unknown/)
     end
+    
+    it "should raise NoMethodError for :non_length.in(...) instead of ArgumentError for bad argument" do
+      lambda { :unknown.in("") }.should raise_error(NoMethodError, /\:unknown/)
+    end
   end
 
 

@@ -60,8 +60,8 @@ class SymbolProxy
   
   # :legth.in(...)
   def in(range, message=nil)
-    raise ArgumentError, ":length.in(range) accepts Range as parameter" unless range.kind_of?(Range)
     raise NoMethodError, "undefined method `in' for :#{self}:Symbol" unless belongs_to(:length)
+    raise ArgumentError, ":length.in(range) accepts Range as parameter" unless range.kind_of?(Range)
     @options.merge! :in => range
     @options.merge! :message => message if message        
     self
@@ -116,7 +116,7 @@ class SymbolProxy
   end
 end
 
-# Symblo core extention
+# Symbol core extention
 class Symbol 
   def method_missing(method_name, *args)
     symbol_proxy = SymbolProxy.new(self)
